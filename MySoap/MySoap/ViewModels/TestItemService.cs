@@ -199,9 +199,13 @@ namespace MySoap.ViewModels
                     foreach (var para in reqCmd.Parameters)
                     {
                         w.WriteStartElement("bbs", "MyPara", null);
+
                         w.WriteElementString("bbs", "ParameterName", null, para.ParameterName);
                         w.WriteElementString("bbs", "DbDataType", null, para.DbDataType.ToString());
                         w.WriteElementString("bbs", "Direction", null, Convert.ToInt32(para.Direction).ToString());
+                        w.WriteElementString("bbs", "HeaderCommandName", null, para.HeaderCommandName);
+                        w.WriteElementString("bbs", "HeaderParameter", null, para.HeaderParameter);
+
                         w.WriteEndElement(); // Parameters
                     }
                     w.WriteEndElement(); // Parameters

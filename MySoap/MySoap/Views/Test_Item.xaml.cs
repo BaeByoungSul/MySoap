@@ -39,6 +39,10 @@ namespace MySoap.Views
                 TestItemService itemService = new TestItemService(DBAction.ExecNonQuery);
                 SvcResult svcResult = itemService.AddTestItem(reqCmds);
 
+                if (svcResult.ReturnCD.Equals("OK"))
+                {
+                    this.DisplayAlert("Ok", "정상적으로 처리되었습니다.", "Confirm");
+                }
                 Console.WriteLine(svcResult.ReturnStr);
                 //lstv1.ItemsSource = testItemMsts;
 
@@ -53,7 +57,7 @@ namespace MySoap.Views
         }
         private ReqCommand T1_MST()
         {
-            ReqCommand _cmd = new ReqCommand("MST", "AZURE_PC", CommandType.StoredProcedure, "NakDongDB..USP_TEST_MST");
+            ReqCommand _cmd = new ReqCommand("MST", "AZURE_PC", CommandType.StoredProcedure, "NakDongDB..USP_TEST_MST_INS");
             _cmd.Parameters.Add(new ReqPara("@TEST_MST_NM", SqlDbType.NVarChar, ParameterDirection.Input));
             _cmd.Parameters.Add(new ReqPara("@TEST_ID", SqlDbType.BigInt, ParameterDirection.Output));
 
@@ -67,7 +71,7 @@ namespace MySoap.Views
         }
         private ReqCommand T1_MST2_DTL()
         {
-            ReqCommand _cmd = new ReqCommand("DTL", "AZURE_PC", CommandType.StoredProcedure, "NakDongDB..USP_TEST_DTL");
+            ReqCommand _cmd = new ReqCommand("DTL", "AZURE_PC", CommandType.StoredProcedure, "NakDongDB..USP_TEST_DTL_INS");
             _cmd.Parameters.Add(new ReqPara("@TEST_ID", SqlDbType.BigInt, ParameterDirection.Input, "MST", "@TEST_ID"));
             _cmd.Parameters.Add(new ReqPara("@TEST_DTL_NM", SqlDbType.NVarChar, ParameterDirection.Input));
             _cmd.Parameters.Add(new ReqPara("@AMOUNT", SqlDbType.Decimal, ParameterDirection.Input));
