@@ -1,0 +1,45 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="MySoap.Views.Test_Item">
+    <ContentPage.Content>
+        <StackLayout>
+            <Button x:Name="btnQuery" Text="조회"/>
+            <Button x:Name="btnSave" Text="저장"/>
+
+            <ListView x:Name="lstv1" >
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <ViewCell>
+                            <StackLayout Orientation="Horizontal"  >
+                                <Label Text="{Binding TEST_ID}" FontSize="15" FontAttributes="Bold,Italic"/>
+                                <Label Text="{Binding TEST_MST_NM}" MaxLines="3" LineBreakMode="TailTruncation"/>
+                                <Label Text="{Binding CREATION_DATE, StringFormat='{0:yyyy/MM/dd hh:mm:ss}'}" />
+
+                            </StackLayout>
+                        </ViewCell>
+
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+
+            <CollectionView x:Name="lstv2" >
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <StackLayout Orientation="Vertical"  Padding="10">
+                            <StackLayout Orientation="Horizontal"  BackgroundColor="Aqua">
+                                <Label Text="{Binding TEST_ID }" />
+                                <Label Text="{Binding TEST_DTL_NM }"/>
+                                <Label Text="{Binding AMOUNT }"/>
+                                <Label Text="{Binding CREATION_DATE, StringFormat='{0:yyyy-MM-dd HH:mm:ss}'}" />
+                            </StackLayout>
+         
+                        </StackLayout>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+
+            </CollectionView>
+
+        </StackLayout>
+    </ContentPage.Content>
+</ContentPage>
