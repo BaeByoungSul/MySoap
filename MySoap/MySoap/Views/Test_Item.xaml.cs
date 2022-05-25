@@ -30,7 +30,7 @@ namespace MySoap.Views
             btnMyCmdSave.Clicked += BtnMyCmdSave_Clicked;
         }
 
-        private void BtnMyCmdSave_Clicked(object sender, EventArgs e)
+        private async void BtnMyCmdSave_Clicked(object sender, EventArgs e)
         {
             List<MyCommand> reqCmds = new List<MyCommand>();
             //                ReqCommand cmd1 = T1_MST();
@@ -42,14 +42,19 @@ namespace MySoap.Views
 
             try
             {
-                IsTaskRunning = true;
+                // not working 
+                cursorBusy.IsRunning = true;
+                cursorBusy.IsEnabled = true;
+                cursorBusy.IsVisible = true;
+
+                await Task.Delay(10);
 
                 TestItemService itemService = new TestItemService(DBAction.ExecNonQuery);
                 ExecReturn execReturn = itemService.AddTestItem_MyCmd(reqCmds);
 
                 if (execReturn.ReturnCD.Equals("OK"))
                 {
-                    this.DisplayAlert("Ok", "정상적으로 처리되었습니다.", "Confirm");
+                  await  this.DisplayAlert("Ok", "정상적으로 처리되었습니다.", "Confirm");
                 }
                 Console.WriteLine(execReturn.ReturnOutPut);
                 //lstv1.ItemsSource = testItemMsts;
@@ -57,12 +62,14 @@ namespace MySoap.Views
             }
             catch (Exception ex)
             {
-                this.DisplayAlert("Error", ex.ToString(), "Confirm");
+                await this.DisplayAlert("Error", ex.ToString(), "Confirm");
                 return;
 
             }finally
             {
-                IsTaskRunning = false;
+                cursorBusy.IsRunning = false;
+                cursorBusy.IsEnabled = false;
+                cursorBusy.IsVisible = false;
             }
         }
         private MyCommand ITEM_MST_Command()
