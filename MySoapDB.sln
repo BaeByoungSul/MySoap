@@ -7,7 +7,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MySoap.Android", "MySoap\My
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MySoap.iOS", "MySoap\MySoap.iOS\MySoap.iOS.csproj", "{7C53D2EE-DE50-459D-9638-99CC78AB1591}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MySoap", "MySoap\MySoap\MySoap.csproj", "{AF1A2C7F-376F-430D-80F4-F7FC5A506ED0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MySoap", "MySoap\MySoap\MySoap.csproj", "{AF1A2C7F-376F-430D-80F4-F7FC5A506ED0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
