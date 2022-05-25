@@ -7,6 +7,9 @@
             <Button x:Name="btnQuery" Text="조회"/>
             <Button x:Name="btnSave" Text="저장"/>
 
+            <Button x:Name="btnMyCmdQuery" Text="조회(MyCommand)"/>
+            <Button x:Name="btnMyCmdSave" Text="저장(MyCommand)"/>
+
             <ListView x:Name="lstv1" >
                 <ListView.ItemTemplate>
                     <DataTemplate>

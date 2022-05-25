@@ -7,12 +7,16 @@ using System.Threading.Tasks;
 
 namespace BBS
 {
-    public class ReqReturn
-    {
-        public string ReturnCD { get; set; }
-        public string ReturnMsg { get; set; }
-        public DataSet Ds { get; set; }
-    }
+    //public class ReqReturn
+    //{
+    //    public string ReturnCD { get; set; }
+    //    public string ReturnMsg { get; set; }
+    //    public DataSet Ds { get; set; }
+    //}
+
+    /// <summary>
+    /// Service parameter MyCommand 가 불편해서 추가
+    /// </summary>
     public class ReqCommand
     {
        // private List<ReqPara> parameters;
@@ -45,11 +49,9 @@ namespace BBS
         /// <returns></returns>
         public MyCommand GetMyCommand()
         {
-            MyCommand mycmd = new MyCommand();
-            mycmd.CommandName = this.CommandName;
-            mycmd.ConnectionName = this.ConnectionName;
-            mycmd.CommandType = (int)this.CommandType;
-            mycmd.CommandText = this.CommandText;
+            MyCommand mycmd = new MyCommand(  this.CommandName, this.ConnectionName,
+                (int)this.CommandType, this.CommandText
+            );
 
             if (this.Parameters == null) return mycmd;
 
@@ -57,14 +59,13 @@ namespace BBS
             List<MyPara> myParas = new List<MyPara>();
             foreach (ReqPara req in this.Parameters )
             {
-                MyPara myPara = new MyPara()
-                {
-                    ParameterName = req.ParameterName,
-                    DbDataType = req.DbDataType,
-                    Direction = (int)req.Direction,
-                    HeaderCommandName = req.HeaderCommandName,
-                    HeaderParameter = req.HeaderParameter
-                };
+                MyPara myPara = new MyPara(
+                    req.ParameterName,
+                    req.DbDataType,
+                    (int)req.Direction,
+                    req.HeaderCommandName,
+                    req.HeaderParameter
+                );
                 myParas.Add(myPara);
             }
             mycmd.Parameters = myParas.ToArray();
@@ -80,30 +81,21 @@ namespace BBS
                 List<MyParaValue> listParaValues = new List<MyParaValue>();
                 foreach (KeyValuePair<string,object> paraPair in paraDic)
                 {
-                    MyParaValue myPara = new MyParaValue();
-                    myPara.ParameterName = paraPair.Key;
-                    myPara.ParaValue = paraPair.Value== null ? string.Empty: paraPair.Value.ToString();
-
+                    MyParaValue myPara = new MyParaValue(
+                        paraPair.Key, 
+                        paraPair.Value == null ? string.Empty : paraPair.Value.ToString()
+                    );
                     listParaValues.Add(myPara);
                     Console.WriteLine("Key:{0} Value: {1}", paraPair.Key, paraPair.Value);
                 }
                 listOflist_ParaValues.Add(listParaValues.ToArray());
 
-                //MyParaValue[] arrayCollection = paraDic.Select(
-                //    pair => new MyParaValue(){
-                //                ParameterName = pair.Key,
-                //                ParaValue = pair.Value.ToString()}).ToArray();
-                //listOflist_ParaValues.Add(arrayCollection);
             }
 
             mycmd.ParaValues = listOflist_ParaValues.ToArray();
             return mycmd;
-
-          
         }
-
     }
-
     public class ReqPara
     {
         public ReqPara()
@@ -125,13 +117,11 @@ namespace BBS
         public string HeaderCommandName { get; set; }
         public string HeaderParameter { get; set; }
     }
-
     public class ReqParaValue
     {
         public string ParameterName { get; set; }
         public string ParaValue { get; set; }
 
     }
-
 
 }

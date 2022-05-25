@@ -1,5 +1,5 @@
 ﻿using BBS;
-using MySoap.Models;
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,9 +9,15 @@ using System.Xml.Linq;
 
 namespace MySoap.ViewModels
 {
+    /// <summary>
+    /// 검사항목 조회 및 저장
+    /// </summary>
     public  class TestItemService
     {
+        // http web request
         private MyHttpDB MyHttpWebReq { get; set; }
+
+        // http web request 생성
         public TestItemService(DBAction dBAction )
         {
             MyHttpWebReq = new MyHttpDB (dBAction);
@@ -21,11 +27,8 @@ namespace MySoap.ViewModels
         {
             try
             {
-                XmlDocument reqXmlDoc = GetDataDB_HttpReq(reqcommand);
-                SvcResult resRtn = MyHttpWebReq.GetResponse(reqXmlDoc);
-
-                // MyHttpDB myHttp = new MyHttpDB(DBAction.GetDataSet);
-                //SvcResult resRtn = myHttp.GetResponse(reqXmlDoc);
+                XmlDocument reqXmlDoc = MyHttpWebReq.GetDataDB_HttpReq(reqcommand);
+                SvcReturn resRtn = MyHttpWebReq.GetResponse(reqXmlDoc);
 
                 var doc = XDocument.Parse(resRtn.ReturnStr);
                 List<TestItemMst> lstReturn = new List<TestItemMst>();
@@ -46,31 +49,37 @@ namespace MySoap.ViewModels
 
                 throw ex;
             }
-
             
         }
 
-        public SvcResult AddTestItem(List<ReqCommand> lstReqCmd)
+        public ExecReturn AddTestItem(List<ReqCommand> lstReqCmd)
         {
             try
             {
-                XmlDocument reqXmlDoc = NonExecQueryHttpReq(lstReqCmd);
-                SvcResult resRtn = MyHttpWebReq.GetResponse(reqXmlDoc);
+                //XmlDocument reqXmlDoc = NonExecQueryHttpReq(lstReqCmd);
+                XmlDocument reqXmlDoc = MyHttpWebReq.NonExecQueryHttpReq(lstReqCmd);
 
-                return resRtn;
-                
-                //var doc = XDocument.Parse(resRtn.ReturnStr);
-                //List<SvcReturn> lstReturn = new List<SvcResult>();
+                SvcReturn resRtn = MyHttpWebReq.GetResponse(reqXmlDoc);
 
-                //lstReturn = (from r in doc.Root.Elements("Table")
-                //             select new TestItemMst()
-                //             {
-                //                 TEST_ID = Convert.ToInt32(r.Element("TEST_ID").Value),
-                //                 TEST_MST_NM = r.Element("TEST_MST_NM").Value,
-                //                 CREATION_DATE = Convert.ToDateTime(r.Element("CREATION_DATE").Value)
+                var doc = XDocument.Parse(resRtn.ReturnStr);
+                List<DBOutPut> lstReturn = new List<DBOutPut>();
 
-                //             }).ToList();
-                //return lstReturn;
+                lstReturn = (from r in doc.Root.Elements("output")
+                             select new DBOutPut()
+                             {
+                                 Rowseq = Convert.ToInt32(r.Element("rowseq").Value),
+                                 CommandName = r.Element("CommandName").Value,
+                                 ParameterName = r.Element("ParameterName").Value,
+                                 OutValue = r.Element("OutValue").Value,
+
+                             }).ToList();
+                ExecReturn execReturn = new ExecReturn()
+                {
+                    ReturnCD = resRtn.ReturnCD,
+                    ReturnMsg= resRtn.ReturnMsg,    
+                    ReturnOutPut= lstReturn
+                };
+                return execReturn;
 
             }
             catch (Exception ex)
@@ -79,179 +88,94 @@ namespace MySoap.ViewModels
                 throw ex;
             }
         }
-
-        private  XmlDocument GetDataDB_HttpReq(ReqCommand reqCmd)
+        public List<TestItemMst> GetTestItemMst_MyCmd(MyCommand mycmd)
         {
-            StringBuilder sb = new StringBuilder();
-
-            XmlWriterSettings settings = new XmlWriterSettings();
-            settings.Indent = true;
-            settings.OmitXmlDeclaration = true;  // 필수
-
-            XmlWriter w = XmlWriter.Create(sb, settings);
-
-            w.WriteStartElement("soap", "Envelope", "http://schemas.xmlsoap.org/soap/envelope/");
-            w.WriteAttributeString("xmlns", "nak", null, "http://nakdong.wcf.service");
-            w.WriteAttributeString("xmlns", "bbs", null, "http://schemas.datacontract.org/2004/07/BBS");
-
-            w.WriteStartElement("soap", "Header", null);
-            w.WriteEndElement(); // End Of soapenv:Header
-
-            w.WriteStartElement("soap", "Body", null);
-
-            // 변경해줘야 할 부분 
-            w.WriteStartElement("nak", "GetDataSetXml", null);
-
-            // 공통부분 Strart command
-            w.WriteStartElement("nak", "cmd", null);
-
-
+            try
             {
-                w.WriteElementString("bbs", "CommandName", null, reqCmd.CommandName);
-                w.WriteElementString("bbs", "ConnectionName", null, reqCmd.ConnectionName);
-                w.WriteElementString("bbs", "CommandType", null, Convert.ToInt32(reqCmd.CommandType).ToString());
-                w.WriteElementString("bbs", "CommandText", null, reqCmd.CommandText);
+                XmlDocument reqXmlDoc = MyHttpWebReq.GetDataDB_HttpReq_MyCmd(mycmd);
+                SvcReturn resRtn = MyHttpWebReq.GetResponse(reqXmlDoc);
 
-                // parameter
-                w.WriteStartElement("bbs", "Parameters", null);
-                foreach (var para in reqCmd.Parameters)
-                {
-                    w.WriteStartElement("bbs", "MyPara", null);
-                    w.WriteElementString("bbs", "ParameterName", null, para.ParameterName);
-                    w.WriteElementString("bbs", "DbDataType", null, para.DbDataType.ToString());
-                    w.WriteElementString("bbs", "Direction", null, Convert.ToInt32(para.Direction).ToString());
-                    w.WriteEndElement(); // Parameters
-                }
-                w.WriteEndElement(); // Parameters
+                var doc = XDocument.Parse(resRtn.ReturnStr);
+                List<TestItemMst> lstReturn = new List<TestItemMst>();
 
-                // parameter value : ArrayOfArray
-                w.WriteStartElement("bbs", "ParaValues", null);
-                foreach (Dictionary<string, object> paraDic in reqCmd.ParameterValues)
-                {
-                    w.WriteStartElement("bbs", "ArrayOfMyParaValue", null);
+                lstReturn = (from r in doc.Root.Elements("Table")
+                             select new TestItemMst()
+                             {
+                                 TEST_ID = Convert.ToInt32(r.Element("TEST_ID").Value),
+                                 TEST_MST_NM = r.Element("TEST_MST_NM").Value,
+                                 CREATION_DATE = Convert.ToDateTime(r.Element("CREATION_DATE").Value)
 
-                    foreach (KeyValuePair<string, object> paraPair in paraDic)
-                    {
-                        w.WriteStartElement("bbs", "MyParaValue", null);
-                        w.WriteElementString("bbs", "ParameterName", null, paraPair.Key);
-                        w.WriteElementString("bbs", "ParaValue", null, paraPair.Value.ToString());
-                        w.WriteEndElement();  // MyParaValue
-
-                        Console.WriteLine("Key:{0} Value: {1}", paraPair.Key, paraPair.Value);
-                    }
-                    w.WriteEndElement(); // ArrayOfMyParaValue
-                }
-                w.WriteEndElement(); // ParaValues
+                             }).ToList();
+                return lstReturn;
 
             }
+            catch (Exception ex)
+            {
 
-            w.WriteEndElement(); // End Of Command
-
-
-            w.WriteEndElement(); // End Of 사용자 GetDataSetXml
-            w.WriteEndElement(); // End Of soapenv:Body
-            w.WriteEndElement(); // End Of First Start
-            w.Close();
-
-            XmlDocument xmlDoc = new XmlDocument();
-            xmlDoc.LoadXml(sb.ToString());
-            return xmlDoc;
+                throw ex;
+            }
 
         }
 
-        private XmlDocument NonExecQueryHttpReq(List<ReqCommand> lstReqCmd)
+        public ExecReturn AddTestItem_MyCmd(List<MyCommand> lstMyCmd)
         {
-            StringBuilder sb = new StringBuilder();
-
-            XmlWriterSettings settings = new XmlWriterSettings();
-            settings.Indent = true;
-            settings.OmitXmlDeclaration = true;  // 필수
-
-            XmlWriter w = XmlWriter.Create(sb, settings);
-
-
-            w.WriteStartElement("soap", "Envelope", "http://schemas.xmlsoap.org/soap/envelope/");
-            w.WriteAttributeString("xmlns", "nak", null, "http://nakdong.wcf.service");
-            w.WriteAttributeString("xmlns", "bbs", null, "http://schemas.datacontract.org/2004/07/BBS");
-
-            w.WriteStartElement("soap", "Header", null);
-            w.WriteEndElement(); // End Of soapenv:Header
-
-            w.WriteStartElement("soap", "Body", null);
-
-            // 변경해줘야 할 부분 
-            w.WriteStartElement("nak", "ExecNonQuery", null);
-
-            // 공통부분 Strart command
-            w.WriteStartElement("nak", "cmd", null);
-
-            foreach (var reqCmd in lstReqCmd)
+            try
             {
-                w.WriteStartElement("bbs", "MyCommand", null);
+                //XmlDocument reqXmlDoc = NonExecQueryHttpReq(lstReqCmd);
+                XmlDocument reqXmlDoc = MyHttpWebReq.NonExecQueryHttpReq_MyCmd(lstMyCmd);
+
+                SvcReturn resRtn = MyHttpWebReq.GetResponse(reqXmlDoc);
+
+                var doc = XDocument.Parse(resRtn.ReturnStr);
+                List<DBOutPut> lstReturn = new List<DBOutPut>();
+
+                lstReturn = (from r in doc.Root.Elements("output")
+                             select new DBOutPut()
+                             {
+                                 Rowseq = Convert.ToInt32(r.Element("rowseq").Value),
+                                 CommandName = r.Element("CommandName").Value,
+                                 ParameterName = r.Element("ParameterName").Value,
+                                 OutValue = r.Element("OutValue").Value,
+
+                             }).ToList();
+                ExecReturn execReturn = new ExecReturn()
                 {
-                    w.WriteElementString("bbs", "CommandName", null, reqCmd.CommandName);
-                    w.WriteElementString("bbs", "ConnectionName", null, reqCmd.ConnectionName);
-                    w.WriteElementString("bbs", "CommandType", null, Convert.ToInt32(reqCmd.CommandType).ToString());
-                    w.WriteElementString("bbs", "CommandText", null, reqCmd.CommandText);
+                    ReturnCD = resRtn.ReturnCD,
+                    ReturnMsg = resRtn.ReturnMsg,
+                    ReturnOutPut = lstReturn
+                };
+                return execReturn;
 
-                    // parameter
-                    w.WriteStartElement("bbs", "Parameters", null);
-                    foreach (var para in reqCmd.Parameters)
-                    {
-                        w.WriteStartElement("bbs", "MyPara", null);
-
-                        w.WriteElementString("bbs", "ParameterName", null, para.ParameterName);
-                        w.WriteElementString("bbs", "DbDataType", null, para.DbDataType.ToString());
-                        w.WriteElementString("bbs", "Direction", null, Convert.ToInt32(para.Direction).ToString());
-                        w.WriteElementString("bbs", "HeaderCommandName", null, para.HeaderCommandName);
-                        w.WriteElementString("bbs", "HeaderParameter", null, para.HeaderParameter);
-
-                        w.WriteEndElement(); // Parameters
-                    }
-                    w.WriteEndElement(); // Parameters
-
-                    // parameter value : ArrayOfArray
-                    w.WriteStartElement("bbs", "ParaValues", null);
-                    foreach (Dictionary<string, object> paraDic in reqCmd.ParameterValues)
-                    {
-                        w.WriteStartElement("bbs", "ArrayOfMyParaValue", null);
-
-                        foreach (KeyValuePair<string, object> paraPair in paraDic)
-                        {
-                            w.WriteStartElement("bbs", "MyParaValue", null);
-                            w.WriteElementString("bbs", "ParameterName", null, paraPair.Key);
-                            if (paraPair.Value == null)
-                                w.WriteElementString("bbs", "ParaValue", null, String.Empty);
-                            else
-                                w.WriteElementString("bbs", "ParaValue", null, paraPair.Value.ToString());
-
-                            w.WriteEndElement();  // MyParaValue
-
-                            Console.WriteLine("Key:{0} Value: {1}", paraPair.Key, paraPair.Value);
-                        }
-                        w.WriteEndElement(); // ArrayOfMyParaValue
-                    }
-                    w.WriteEndElement(); // ParaValues
-                }
-
-                w.WriteEndElement(); // End Of bbs:MyCommand
             }
-            w.WriteEndElement(); // End Of nak:cmd
+            catch (Exception ex)
+            {
 
-
-
-            w.WriteEndElement(); // End Of 사용자 ExecNonQuery
-            w.WriteEndElement(); // End Of soapenv:Body
-            w.WriteEndElement(); // End Of First Start
-            w.Close();
-
-
-
-            XmlDocument xmlDoc = new XmlDocument();
-            xmlDoc.LoadXml(sb.ToString());
-            return xmlDoc;
-
+                throw ex;
+            }
         }
+    }
 
+    /// <summary>
+    /// 검사항목 Class
+    /// </summary>
+    public class TestItemMst
+    {
+        public int TEST_ID { get; set; }
+        public string TEST_MST_NM { get; set; }
+        public DateTime CREATION_DATE { get; set; }
+
+    }
+
+    /// <summary>
+    /// db command execnonquery시 output parameter값을 저장
+    /// </summary>
+    public class ExecReturn
+    {
+
+        public string ReturnCD { get; set; }  // "FAIL", "OK"
+
+        public string ReturnMsg { get; set; }
+
+        public List<DBOutPut> ReturnOutPut { get; set; }
     }
 }

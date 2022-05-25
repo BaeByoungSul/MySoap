@@ -1,5 +1,4 @@
 ﻿using BBS;
-using MySoap.Models;
 using MySoap.ViewModels;
 using System;
 using System.Collections.Generic;
@@ -20,10 +19,137 @@ namespace MySoap.Views
         public Test_Item()
         {
             InitializeComponent();
-            //btnQuery.Clicked += BtnQuery_Clicked;
+
             btnQuery.Clicked += BtnQuery_Clicked1;
             btnSave.Clicked += BtnSave_Clicked;
 
+            btnMyCmdQuery.Clicked += BtnMyCmdQuery_Clicked;
+            btnMyCmdSave.Clicked += BtnMyCmdSave_Clicked;
+        }
+
+        private void BtnMyCmdSave_Clicked(object sender, EventArgs e)
+        {
+            List<MyCommand> reqCmds = new List<MyCommand>();
+            //                ReqCommand cmd1 = T1_MST();
+            MyCommand reqHDR = ITEM_MST_Command();
+            MyCommand reqDTL = ITEM_DTL_Command();
+            reqCmds.AddRange(new MyCommand[] { reqHDR, reqDTL });
+
+            try
+            {
+                TestItemService itemService = new TestItemService(DBAction.ExecNonQuery);
+                ExecReturn execReturn = itemService.AddTestItem_MyCmd(reqCmds);
+
+                if (execReturn.ReturnCD.Equals("OK"))
+                {
+                    this.DisplayAlert("Ok", "정상적으로 처리되었습니다.", "Confirm");
+                }
+                Console.WriteLine(execReturn.ReturnOutPut);
+                //lstv1.ItemsSource = testItemMsts;
+
+            }
+            catch (Exception ex)
+            {
+                this.DisplayAlert("Error", ex.ToString(), "Confirm");
+                return;
+
+            }
+        }
+        private MyCommand ITEM_MST_Command()
+        {
+            
+            MyCommand _cmd = new MyCommand ( "MST", "AZURE_PC", 
+                (int)CommandType.StoredProcedure, "NakDongDB..USP_TEST_MST_INS" );
+
+            _cmd.Parameters = new MyPara[2];
+            _cmd.Parameters[0] = new MyPara( "@TEST_MST_NM", (int)SqlDbType.NVarChar, (int)ParameterDirection.Input);
+            _cmd.Parameters[1] = new MyPara( "@TEST_ID", (int)SqlDbType.BigInt, (int)ParameterDirection.Output );
+
+            // Parameter Value 가변배열 초기화
+            MyParaValue[][] myParaValues = new MyParaValue[1][]; // 한세트 정의
+            myParaValues[0] = new MyParaValue[2];
+
+            myParaValues[0][0] = new MyParaValue ( "@TEST_MST_NM", "배병술" );
+            myParaValues[0][1] = new MyParaValue ( "@TEST_ID",   ""  );
+
+            _cmd.ParaValues = myParaValues;
+
+            return _cmd;
+        }
+        private MyCommand ITEM_DTL_Command()
+        {
+            MyCommand _cmd = new MyCommand("DTL", "AZURE_PC",
+                            (int)CommandType.StoredProcedure, "NakDongDB..USP_TEST_DTL_INS");
+
+
+            _cmd.Parameters = new MyPara[3];
+
+            _cmd.Parameters[0] = new MyPara("@TEST_ID", (int)SqlDbType.BigInt, (int)ParameterDirection.Input, 
+                "MST", "@TEST_ID");
+            _cmd.Parameters[1] = new MyPara("@TEST_DTL_NM", (int)SqlDbType.NVarChar,(int) ParameterDirection.Input);
+            _cmd.Parameters[2] = new MyPara("@AMOUNT", (int) SqlDbType.Decimal, (int) ParameterDirection.Input);
+
+
+
+            // Parameter Value 가변배열 초기화
+            MyParaValue[][] myParaValues = new MyParaValue[3][]; // 3세트 정의
+
+            myParaValues[0] = new MyParaValue[3]; // 첫번째 셋트
+            myParaValues[0][0] = new MyParaValue("@TEST_ID", null);
+            myParaValues[0][1] = new MyParaValue("@TEST_DTL_NM", "놀부1");
+            myParaValues[0][2] = new MyParaValue("@AMOUNT", "123.5");
+
+            myParaValues[1] = new MyParaValue[3]; // 두번째 셋트
+            myParaValues[1][0] = new MyParaValue("@TEST_ID", null);
+            myParaValues[1][1] = new MyParaValue("@TEST_DTL_NM", "놀부2");
+            myParaValues[1][2] = new MyParaValue("@AMOUNT", "222.5");
+
+            myParaValues[2] = new MyParaValue[3]; // 세번째 셋트
+            myParaValues[2][0] = new MyParaValue("@TEST_ID", null);
+            myParaValues[2][1] = new MyParaValue("@TEST_DTL_NM", "흥부");
+            myParaValues[2][2] = new MyParaValue("@AMOUNT", "333.5");
+
+            _cmd.ParaValues = myParaValues;
+
+            return _cmd;
+        }
+
+
+        private void BtnMyCmdQuery_Clicked(object sender, EventArgs e)
+        {
+            MyCommand _cmd = new MyCommand("MST", "AZURE_PC",
+                            (int)CommandType.StoredProcedure, "NakDongDB..USP_TEST_MST_SEL");
+
+
+
+            _cmd.Parameters = new MyPara[2];
+            _cmd.Parameters[0] = new MyPara("@TEST_MST_NM", (int)SqlDbType.NVarChar, (int)ParameterDirection.Input);
+            _cmd.Parameters[1] = new MyPara("@TEST_PARA", (int)SqlDbType.NVarChar, (int)ParameterDirection.Input);
+            
+            //가변배열 초기화
+            MyParaValue[][] myParaValues = new MyParaValue[1][];
+            myParaValues[0] = new MyParaValue[2];
+
+            myParaValues[0][0] = new MyParaValue ( "@TEST_MST_NM",  "%" );
+            myParaValues[0][1] = new MyParaValue ( "@TEST_PARA",  "%" );
+
+            _cmd.ParaValues = myParaValues;
+
+            try
+            {
+
+                TestItemService itemService = new TestItemService(DBAction.GetDataSet);
+                List<TestItemMst> testItemMsts = itemService.GetTestItemMst_MyCmd(_cmd);
+
+                lstv1.ItemsSource = testItemMsts;
+
+            }
+            catch (Exception ex)
+            {
+                this.DisplayAlert("Error", ex.ToString(), "Confirm");
+                return;
+
+            }
         }
 
         private void BtnSave_Clicked(object sender, EventArgs e)
@@ -37,13 +163,13 @@ namespace MySoap.Views
             try
             {
                 TestItemService itemService = new TestItemService(DBAction.ExecNonQuery);
-                SvcResult svcResult = itemService.AddTestItem(reqCmds);
+                ExecReturn execReturn = itemService.AddTestItem(reqCmds);
 
-                if (svcResult.ReturnCD.Equals("OK"))
+                if (execReturn.ReturnCD.Equals("OK"))
                 {
                     this.DisplayAlert("Ok", "정상적으로 처리되었습니다.", "Confirm");
                 }
-                Console.WriteLine(svcResult.ReturnStr);
+                Console.WriteLine(execReturn.ReturnOutPut);
                 //lstv1.ItemsSource = testItemMsts;
 
             }
@@ -127,6 +253,7 @@ namespace MySoap.Views
 
             try
             {
+
                 TestItemService itemService = new TestItemService(DBAction.GetDataSet);
                 List<TestItemMst> testItemMsts=  itemService.GetTestItemMst(_cmd);
 
@@ -140,169 +267,8 @@ namespace MySoap.Views
                 
             }
         }
-
-        //private void BtnQuery_Clicked(object sender, EventArgs e)
-        //{
-        //    ReqCommand _cmd = new ReqCommand()
-        //    {
-        //        CommandName = "MST",
-        //        ConnectionName = "AZURE_PC",
-        //        CommandType = CommandType.StoredProcedure,
-        //        CommandText = "NakDongDB..[USP_TEST_MST_SEL]",
-        //        Parameters = new List<ReqPara>(),
-        //        ParameterValues = new List<Dictionary<string, object>>()
-        //    };
-        //    //ReqCommand _cmd = new ReqCommand()
-        //    //{
-        //    //    CommandName = "MST",
-        //    //    ConnectionName = "BSBAE",
-        //    //    CommandType = CommandType.StoredProcedure,
-        //    //    CommandText = "TESTDB..[USP_TEST_MST_SEL]",
-        //    //    Parameters = new List<ReqPara>(),
-        //    //    ParameterValues = new List<Dictionary<string, object>>()
-        //    //};
-        //    _cmd.Parameters.Add(new ReqPara("@TEST_MST_NM", SqlDbType.VarChar, ParameterDirection.Input));
-        //    _cmd.Parameters.Add(new ReqPara("@TEST_PARA", SqlDbType.VarChar, ParameterDirection.Input));
-
-        //    Dictionary<string, object> pairValue = new Dictionary<string, object>()
-        //        {
-        //            {"@TEST_MST_NM","%"},
-        //            {"@TEST_PARA","%"}
-
-        //        };
-        //    _cmd.ParameterValues.Add(pairValue);
-        //    try
-        //    {
-        //        // 요청 파라미터 
-        //        XmlDocument reqXmlDoc = GetDataDB_HttpReq(_cmd);
-
-        //        MyHttpDB myHttp = new MyHttpDB(DBAction.GetDataSet);
-        //        SvcResult resRtn = myHttp.GetResponse(reqXmlDoc);
-
-        //        var doc = XDocument.Parse(resRtn.ReturnStr);
-
-        //        List<TestSel> lstSel = new List<TestSel>();
-
-        //        lstSel = (from r in doc.Root.Elements("Table")
-        //                  select new TestSel()
-        //                  {
-        //                      TEST_ID = r.Element("TEST_ID").Value,
-        //                      TEST_MST_NM = r.Element("TEST_MST_NM").Value,
-        //                      CREATION_DATE = Convert.ToDateTime(r.Element("CREATION_DATE").Value)
-
-        //                  }).ToList();
-        //        //TimeZoneInfo.ConvertTime(date, TimeZoneInfo.Local);
-
-        //        lstv1.ItemsSource = lstSel;
-
-
-        //        //foreach (var item in doc.Root.Elements("Table"))
-        //        //{
-        //        //    Debug.WriteLine(item.Element("TEST_ID").Value);
-        //        //    Debug.WriteLine(item.Element("TEST_MST_NM").Value);
-        //        //    Debug.WriteLine(item.Element("CREATION_DATE").Value);
-        //        //}
-
-
-        //        return;
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        this.DisplayAlert("Error", ex.ToString(), "Confirm");
-        //        return;
-        //        //throw;
-        //    }
-        //}
-
-        //private XmlDocument GetDataDB_HttpReq(ReqCommand reqCmd)
-        //{
-        //    StringBuilder sb = new StringBuilder();
-
-        //    XmlWriterSettings settings = new XmlWriterSettings();
-        //    settings.Indent = true;
-        //    settings.OmitXmlDeclaration = true;  // 필수
-
-        //    XmlWriter w = XmlWriter.Create(sb, settings);
-
-
-        //    w.WriteStartElement("soap", "Envelope", "http://schemas.xmlsoap.org/soap/envelope/");
-        //    w.WriteAttributeString("xmlns", "nak", null, "http://nakdong.wcf.service");
-        //    w.WriteAttributeString("xmlns", "bbs", null, "http://schemas.datacontract.org/2004/07/BBS");
-
-        //    w.WriteStartElement("soap", "Header", null);
-        //    w.WriteEndElement(); // End Of soapenv:Header
-
-        //    w.WriteStartElement("soap", "Body", null);
-
-        //    // 변경해줘야 할 부분 
-        //    w.WriteStartElement("nak", "GetDataSetXml", null);
-
-        //    // 공통부분 Strart command
-        //    w.WriteStartElement("nak", "cmd", null);
-
-
-        //    {
-        //        w.WriteElementString("bbs", "CommandName", null, reqCmd.CommandName);
-        //        w.WriteElementString("bbs", "ConnectionName", null, reqCmd.ConnectionName);
-        //        w.WriteElementString("bbs", "CommandType", null, Convert.ToInt32(reqCmd.CommandType).ToString());
-        //        w.WriteElementString("bbs", "CommandText", null, reqCmd.CommandText);
-
-        //        // parameter
-        //        w.WriteStartElement("bbs", "Parameters", null);
-        //        foreach (var para in reqCmd.Parameters)
-        //        {
-        //            w.WriteStartElement("bbs", "MyPara", null);
-        //            w.WriteElementString("bbs", "ParameterName", null, para.ParameterName);
-        //            w.WriteElementString("bbs", "DbDataType", null, para.DbDataType.ToString());
-        //            w.WriteElementString("bbs", "Direction", null, Convert.ToInt32(para.Direction).ToString());
-        //            w.WriteEndElement(); // Parameters
-        //        }
-        //        w.WriteEndElement(); // Parameters
-
-        //        // parameter value : ArrayOfArray
-        //        w.WriteStartElement("bbs", "ParaValues", null);
-        //        foreach (Dictionary<string, object> paraDic in reqCmd.ParameterValues)
-        //        {
-        //            w.WriteStartElement("bbs", "ArrayOfMyParaValue", null);
-
-        //            foreach (KeyValuePair<string, object> paraPair in paraDic)
-        //            {
-        //                w.WriteStartElement("bbs", "MyParaValue", null);
-        //                w.WriteElementString("bbs", "ParameterName", null, paraPair.Key);
-        //                w.WriteElementString("bbs", "ParaValue", null, paraPair.Value.ToString());
-        //                w.WriteEndElement();  // MyParaValue
-
-        //                Console.WriteLine("Key:{0} Value: {1}", paraPair.Key, paraPair.Value);
-        //            }
-        //            w.WriteEndElement(); // ArrayOfMyParaValue
-        //        }
-        //        w.WriteEndElement(); // ParaValues
-
-        //    }
-
-        //    w.WriteEndElement(); // End Of Command
-
-
-        //    w.WriteEndElement(); // End Of 사용자 GetDataSetXml
-        //    w.WriteEndElement(); // End Of soapenv:Body
-        //    w.WriteEndElement(); // End Of First Start
-        //    w.Close();
-
-
-
-        //    XmlDocument xmlDoc = new XmlDocument();
-        //    xmlDoc.LoadXml(sb.ToString());
-        //    return xmlDoc;
-
-        //}
-
+        
     }
-    //[System.Xml.Serialization.XmlRoot("Table")]
-    //public class TestSel
-    //{
-    //    public string TEST_ID { get; set; }
-    //    public string TEST_MST_NM { get; set; }
-    //    public DateTime CREATION_DATE { get; set; }
-    //}
+
 
 }
