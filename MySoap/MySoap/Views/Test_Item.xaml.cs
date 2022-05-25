@@ -16,9 +16,12 @@ namespace MySoap.Views
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class Test_Item : ContentPage
     {
+        bool IsTaskRunning=false;
         public Test_Item()
         {
             InitializeComponent();
+
+            this.BindingContext = this;
 
             btnQuery.Clicked += BtnQuery_Clicked1;
             btnSave.Clicked += BtnSave_Clicked;
@@ -35,8 +38,12 @@ namespace MySoap.Views
             MyCommand reqDTL = ITEM_DTL_Command();
             reqCmds.AddRange(new MyCommand[] { reqHDR, reqDTL });
 
+            
+
             try
             {
+                IsTaskRunning = true;
+
                 TestItemService itemService = new TestItemService(DBAction.ExecNonQuery);
                 ExecReturn execReturn = itemService.AddTestItem_MyCmd(reqCmds);
 
@@ -53,6 +60,9 @@ namespace MySoap.Views
                 this.DisplayAlert("Error", ex.ToString(), "Confirm");
                 return;
 
+            }finally
+            {
+                IsTaskRunning = false;
             }
         }
         private MyCommand ITEM_MST_Command()
@@ -115,7 +125,7 @@ namespace MySoap.Views
         }
 
 
-        private void BtnMyCmdQuery_Clicked(object sender, EventArgs e)
+        private async void BtnMyCmdQuery_Clicked(object sender, EventArgs e)
         {
             MyCommand _cmd = new MyCommand("MST", "AZURE_PC",
                             (int)CommandType.StoredProcedure, "NakDongDB..USP_TEST_MST_SEL");
@@ -137,17 +147,32 @@ namespace MySoap.Views
 
             try
             {
+                cursorBusy.IsRunning = true;
+                cursorBusy.IsEnabled = true;
+                cursorBusy.IsVisible = true;
+
+                await Task.Delay(10);
 
                 TestItemService itemService = new TestItemService(DBAction.GetDataSet);
                 List<TestItemMst> testItemMsts = itemService.GetTestItemMst_MyCmd(_cmd);
 
                 lstv1.ItemsSource = testItemMsts;
 
+                
             }
             catch (Exception ex)
             {
-                this.DisplayAlert("Error", ex.ToString(), "Confirm");
+                await this.DisplayAlert("Error", ex.ToString(), "Confirm");
                 return;
+
+            }
+            finally
+            {
+                cursorBusy.IsRunning = false;
+                cursorBusy.IsEnabled = false;
+                cursorBusy.IsVisible = false;
+
+                //IsTaskRunning = false;
 
             }
         }

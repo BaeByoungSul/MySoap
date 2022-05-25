@@ -25,7 +25,14 @@
                     </DataTemplate>
                 </ListView.ItemTemplate>
             </ListView>
-
+            <StackLayout>
+                <ActivityIndicator x:Name="cursorBusy"
+                                   Color="Orange"
+                                   Margin="10"
+                                   HorizontalOptions="Center"
+                                   VerticalOptions="Center" />
+     
+            </StackLayout>
             <CollectionView x:Name="lstv2" >
                 <CollectionView.ItemTemplate>
                     <DataTemplate>
