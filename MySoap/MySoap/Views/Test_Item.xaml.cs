@@ -16,7 +16,6 @@ namespace MySoapDB.Views
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class Test_Item : ContentPage
     {
-        bool IsTaskRunning=false;
         public Test_Item()
         {
             InitializeComponent();
