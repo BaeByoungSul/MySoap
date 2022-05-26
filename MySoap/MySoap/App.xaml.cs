@@ -1,9 +1,9 @@
-﻿using MySoap.Views;
+﻿using MySoapDB.Views;
 using System;
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
 
-namespace MySoap
+namespace MySoapDB
 {
     public partial class App : Application
     {

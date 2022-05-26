@@ -128,9 +128,9 @@
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.iOS.CSharp.targets" />
   <ItemGroup>
-    <ProjectReference Include="..\MySoap\MySoap.csproj">
-      <Project>{03F1E891-5062-4FE7-99ED-29B0B03947D1}</Project>
-      <Name>MySoap</Name>
+    <ProjectReference Include="..\MySoap\MySoapDB.csproj">
+      <Project>{AF1A2C7F-376F-430D-80F4-F7FC5A506ED0}</Project>
+      <Name>MySoapDB</Name>
     </ProjectReference>
   </ItemGroup>
 </Project>

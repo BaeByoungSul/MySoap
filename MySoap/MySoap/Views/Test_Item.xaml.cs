@@ -1,5 +1,5 @@
 ﻿using BBS;
-using MySoap.ViewModels;
+using MySoapDB.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -11,7 +11,7 @@ using System.Xml.Linq;
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
 
-namespace MySoap.Views
+namespace MySoapDB.Views
 {
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class Test_Item : ContentPage
@@ -38,15 +38,13 @@ namespace MySoap.Views
             MyCommand reqDTL = ITEM_DTL_Command();
             reqCmds.AddRange(new MyCommand[] { reqHDR, reqDTL });
 
-            
-
             try
             {
-                // not working 
+                
                 cursorBusy.IsRunning = true;
                 cursorBusy.IsEnabled = true;
-                cursorBusy.IsVisible = true;
-
+                cursorBusy.IsVisible = true;                
+                
                 await Task.Delay(10);
 
                 TestItemService itemService = new TestItemService(DBAction.ExecNonQuery);
@@ -54,7 +52,7 @@ namespace MySoap.Views
 
                 if (execReturn.ReturnCD.Equals("OK"))
                 {
-                  await  this.DisplayAlert("Ok", "정상적으로 처리되었습니다.", "Confirm");
+                   await this.DisplayAlert("Ok", "정상적으로 처리되었습니다.", "Confirm");
                 }
                 Console.WriteLine(execReturn.ReturnOutPut);
                 //lstv1.ItemsSource = testItemMsts;

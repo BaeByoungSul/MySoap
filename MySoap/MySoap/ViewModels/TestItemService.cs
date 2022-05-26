@@ -7,7 +7,7 @@ using System.Text;
 using System.Xml;
 using System.Xml.Linq;
 
-namespace MySoap.ViewModels
+namespace MySoapDB.ViewModels
 {
     /// <summary>
     /// 검사항목 조회 및 저장
