@@ -19,7 +19,7 @@ namespace BBS
     public class MyHttpDB
     {
         // WCF End Point Address In Azure Virtual Machine 
-        public readonly string DB_EndpointAddress = "http://20.227.136.125:9099/DBServiceHttp";
+        public readonly string DB_EndpointAddress = "http://20.227.136.125:9110/DBService";
 
         private HttpWebRequest phttpReq { get; set; }
         private DBAction pEnumAction { get; set; }

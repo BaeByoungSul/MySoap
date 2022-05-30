@@ -72,7 +72,7 @@ namespace MySoapDB.Views
         private MyCommand ITEM_MST_Command()
         {
             
-            MyCommand _cmd = new MyCommand ( "MST", "AZURE_PC", 
+            MyCommand _cmd = new MyCommand ( "MST", "AZURE_DB", 
                 (int)CommandType.StoredProcedure, "NakDongDB..USP_TEST_MST_INS" );
 
             _cmd.Parameters = new MyPara[2];
@@ -92,7 +92,7 @@ namespace MySoapDB.Views
         }
         private MyCommand ITEM_DTL_Command()
         {
-            MyCommand _cmd = new MyCommand("DTL", "AZURE_PC",
+            MyCommand _cmd = new MyCommand("DTL", "AZURE_DB",
                             (int)CommandType.StoredProcedure, "NakDongDB..USP_TEST_DTL_INS");
 
 
@@ -131,7 +131,7 @@ namespace MySoapDB.Views
 
         private async void BtnMyCmdQuery_Clicked(object sender, EventArgs e)
         {
-            MyCommand _cmd = new MyCommand("MST", "AZURE_PC",
+            MyCommand _cmd = new MyCommand("MST", "AZURE_DB",
                             (int)CommandType.StoredProcedure, "NakDongDB..USP_TEST_MST_SEL");
 
 
@@ -212,7 +212,7 @@ namespace MySoapDB.Views
         }
         private ReqCommand T1_MST()
         {
-            ReqCommand _cmd = new ReqCommand("MST", "AZURE_PC", CommandType.StoredProcedure, "NakDongDB..USP_TEST_MST_INS");
+            ReqCommand _cmd = new ReqCommand("MST", "AZURE_DB", CommandType.StoredProcedure, "NakDongDB..USP_TEST_MST_INS");
             _cmd.Parameters.Add(new ReqPara("@TEST_MST_NM", SqlDbType.NVarChar, ParameterDirection.Input));
             _cmd.Parameters.Add(new ReqPara("@TEST_ID", SqlDbType.BigInt, ParameterDirection.Output));
 
@@ -226,7 +226,7 @@ namespace MySoapDB.Views
         }
         private ReqCommand T1_MST2_DTL()
         {
-            ReqCommand _cmd = new ReqCommand("DTL", "AZURE_PC", CommandType.StoredProcedure, "NakDongDB..USP_TEST_DTL_INS");
+            ReqCommand _cmd = new ReqCommand("DTL", "AZURE_DB", CommandType.StoredProcedure, "NakDongDB..USP_TEST_DTL_INS");
             _cmd.Parameters.Add(new ReqPara("@TEST_ID", SqlDbType.BigInt, ParameterDirection.Input, "MST", "@TEST_ID"));
             _cmd.Parameters.Add(new ReqPara("@TEST_DTL_NM", SqlDbType.NVarChar, ParameterDirection.Input));
             _cmd.Parameters.Add(new ReqPara("@AMOUNT", SqlDbType.Decimal, ParameterDirection.Input));
@@ -262,7 +262,7 @@ namespace MySoapDB.Views
             ReqCommand _cmd = new ReqCommand()
             {
                 CommandName = "MST",
-                ConnectionName = "AZURE_PC",
+                ConnectionName = "AZURE_DB",
                 CommandType = CommandType.StoredProcedure,
                 CommandText = "NakDongDB..[USP_TEST_MST_SEL]",
                 Parameters = new List<ReqPara>(),
